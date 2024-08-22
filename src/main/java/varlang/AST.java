@@ -6,288 +6,306 @@ import java.util.List;
 /**
  * This class hierarchy represents expressions in the abstract syntax tree
  * manipulated by this interpreter.
- * 
+ *
  * @author hridesh
- * 
  */
 @SuppressWarnings("rawtypes")
 public interface AST {
-	public static abstract class ASTNode implements AST {
-		public abstract Object accept(Visitor visitor, Env env);
-	}
-	public static class Program extends ASTNode {
-		List<DefineDecl> _decls;
-		Exp _e;
+    interface Visitor<T> {
+        // This interface should contain a signature for each concrete AST node.
+        T visit(AST.AddExp e, Env env);
 
-		public Program(List<DefineDecl>decls, Exp e) {
-			_decls = decls;
-			_e = e;
-		}
+        T visit(AST.UnitExp e, Env env);
 
-		public Exp e() {
-			return _e;
-		}
-		
-		public List<DefineDecl> decls() {
-			return _decls;
-		}
+        T visit(AST.NumExp e, Env env);
 
-		public Object accept(Visitor visitor, Env env) {
-			return visitor.visit(this, env);
-		}
-	}
-	public static abstract class Exp extends ASTNode {
+        T visit(AST.DivExp e, Env env);
 
-	}
+        T visit(AST.MultExp e, Env env);
 
-	public static class VarExp extends Exp {
-		String _name;
+        T visit(AST.Program p, Env env);
 
-		public VarExp(String name) {
-			_name = name;
-		}
+        T visit(AST.SubExp e, Env env);
 
-		public String name() {
-			return _name;
-		}
-		
-		public Object accept(Visitor visitor, Env env) {
-			return visitor.visit(this, env);
-		}
-	}
+        T visit(AST.VarExp e, Env env);
 
-	public static class UnitExp extends Exp {
+        T visit(AST.LetExp e, Env env); // New for the varlang
 
-		public UnitExp() {}
+        T visit(AST.DefineDecl d, Env env); // New for the definelang
+    }
 
-		public Object accept(Visitor visitor, Env env) {
-			return visitor.visit(this, env);
-		}
+    abstract class ASTNode implements AST {
+        public abstract Object accept(Visitor visitor, Env env);
+    }
 
-	}
+    class Program extends ASTNode {
+        final List<DefineDecl> _decls;
+        final Exp _e;
 
-	public static class NumExp extends Exp {
-		double _val;
+        public Program(List<DefineDecl> decls, Exp e) {
+            _decls = decls;
+            _e = e;
+        }
 
-		public NumExp(double v) {
-			_val = v;
-		}
+        public Exp e() {
+            return _e;
+        }
 
-		public double v() {
-			return _val;
-		}
-		
-		public Object accept(Visitor visitor, Env env) {
-			return visitor.visit(this, env);
-		}
-	}
+        public List<DefineDecl> decls() {
+            return _decls;
+        }
 
-	public static abstract class CompoundArithExp extends Exp {
-		List<Exp> _rest;
+        public Object accept(Visitor visitor, Env env) {
+            return visitor.visit(this, env);
+        }
+    }
 
-		public CompoundArithExp() {
-			_rest = new ArrayList<Exp>();
-		}
+    abstract class Exp extends ASTNode {
 
-		public CompoundArithExp(Exp fst) {
-			_rest = new ArrayList<Exp>();
-			_rest.add(fst);
-		}
+    }
 
-		public CompoundArithExp(List<Exp> args) {
-			_rest = new ArrayList<Exp>();
-			for (Exp e : args)
-				_rest.add((Exp) e);
-		}
+    class VarExp extends Exp {
+        final String _name;
 
-		public CompoundArithExp(Exp fst, List<Exp> rest) {
-			_rest = new ArrayList<Exp>();
-			_rest.add(fst);
-			_rest.addAll(rest);
-		}
+        public VarExp(String name) {
+            _name = name;
+        }
 
-		public CompoundArithExp(Exp fst, Exp second) {
-			_rest = new ArrayList<Exp>();
-			_rest.add(fst);
-			_rest.add(second);
-		}
+        public String name() {
+            return _name;
+        }
 
-		public Exp fst() {
-			return _rest.get(0);
-		}
+        public Object accept(Visitor visitor, Env env) {
+            return visitor.visit(this, env);
+        }
+    }
 
-		public Exp snd() {
-			return _rest.get(1);
-		}
+    class UnitExp extends Exp {
 
-		public List<Exp> all() {
-			return _rest;
-		}
+        public UnitExp() {
+        }
 
-		public void add(Exp e) {
-			_rest.add(e);
-		}
-		
-	}
+        public Object accept(Visitor visitor, Env env) {
+            return visitor.visit(this, env);
+        }
 
-	public static class AddExp extends CompoundArithExp {
-		public AddExp(Exp fst) {
-			super(fst);
-		}
+    }
 
-		public AddExp(List<Exp> args) {
-			super(args);
-		}
+    class NumExp extends Exp {
+        final double _val;
 
-		public AddExp(Exp fst, List<Exp> rest) {
-			super(fst, rest);
-		}
+        public NumExp(double v) {
+            _val = v;
+        }
 
-		public AddExp(Exp left, Exp right) {
-			super(left, right);
-		}
-		
-		public Object accept(Visitor visitor, Env env) {
-			return visitor.visit(this, env);
-		}
-	}
+        public double v() {
+            return _val;
+        }
 
-	public static class SubExp extends CompoundArithExp {
+        public Object accept(Visitor visitor, Env env) {
+            return visitor.visit(this, env);
+        }
+    }
 
-		public SubExp(Exp fst) {
-			super(fst);
-		}
+    abstract class CompoundArithExp extends Exp {
+        final List<Exp> _rest;
 
-		public SubExp(List<Exp> args) {
-			super(args);
-		}
+        public CompoundArithExp() {
+            _rest = new ArrayList<>();
+        }
 
-		public SubExp(Exp fst, List<Exp> rest) {
-			super(fst, rest);
-		}
+        public CompoundArithExp(Exp fst) {
+            _rest = new ArrayList<>();
+            _rest.add(fst);
+        }
 
-		public SubExp(Exp left, Exp right) {
-			super(left, right);
-		}
-		
-		public Object accept(Visitor visitor, Env env) {
-			return visitor.visit(this, env);
-		}
-	}
+        public CompoundArithExp(List<Exp> args) {
+            _rest = new ArrayList<>();
+            _rest.addAll(args);
+        }
 
-	public static class DivExp extends CompoundArithExp {
-		public DivExp(Exp fst) {
-			super(fst);
-		}
+        public CompoundArithExp(Exp fst, List<Exp> rest) {
+            _rest = new ArrayList<>();
+            _rest.add(fst);
+            _rest.addAll(rest);
+        }
 
-		public DivExp(List<Exp> args) {
-			super(args);
-		}
+        public CompoundArithExp(Exp fst, Exp second) {
+            _rest = new ArrayList<>();
+            _rest.add(fst);
+            _rest.add(second);
+        }
 
-		public DivExp(Exp fst, List<Exp> rest) {
-			super(fst, rest);
-		}
+        public Exp fst() {
+            return _rest.getFirst();
+        }
 
-		public DivExp(Exp left, Exp right) {
-			super(left, right);
-		}
-		
-		public Object accept(Visitor visitor, Env env) {
-			return visitor.visit(this, env);
-		}
-	}
+        public Exp snd() {
+            return _rest.get(1);
+        }
 
-	public static class MultExp extends CompoundArithExp {
-		public MultExp(Exp fst) {
-			super(fst);
-		}
+        public List<Exp> all() {
+            return _rest;
+        }
 
-		public MultExp(List<Exp> args) {
-			super(args);
-		}
+        public void add(Exp e) {
+            _rest.add(e);
+        }
 
-		public MultExp(Exp fst, List<Exp> rest) {
-			super(fst, rest);
-		}
+    }
 
-		public MultExp(Exp left, Exp right) {
-			super(left, right);
-		}
-		
-		public Object accept(Visitor visitor, Env env) {
-			return visitor.visit(this, env);
-		}
-	}
-	
-	/**
-	 * A let expression has the syntax 
-	 * 
-	 *  (let ((name expression)* ) expression)
-	 *  
-	 * @author hridesh
-	 *
-	 */
-	public static class LetExp extends Exp {
-		List<String> _names;
-		List<Exp> _value_exps; 
-		Exp _body;
-		
-		public LetExp(List<String> names, List<Exp> value_exps, Exp body) {
-			_names = names;
-			_value_exps = value_exps;
-			_body = body;
-		}
-		
-		public Object accept(Visitor visitor, Env env) {
-			return visitor.visit(this, env);
-		}
-		
-		public List<String> names() { return _names; }
-		
-		public List<Exp> value_exps() { return _value_exps; }
+    class AddExp extends CompoundArithExp {
+        public AddExp(Exp fst) {
+            super(fst);
+        }
 
-		public Exp body() { return _body; }
+        public AddExp(List<Exp> args) {
+            super(args);
+        }
 
-	}
+        public AddExp(Exp fst, List<Exp> rest) {
+            super(fst, rest);
+        }
 
-	/**
-	 * A define declaration has the syntax
-	 *
-	 *  (define name expression)
-	 *
-	 * @author hridesh
-	 *
-	 */
-	public static class DefineDecl extends Exp {
-		String _name;
-		Exp _value_exp;
+        public AddExp(Exp left, Exp right) {
+            super(left, right);
+        }
 
-		public DefineDecl(String name, Exp value_exp) {
-			_name = name;
-			_value_exp = value_exp;
-		}
+        public Object accept(Visitor visitor, Env env) {
+            return visitor.visit(this, env);
+        }
+    }
 
-		public Object accept(Visitor visitor, Env env) {
-			return visitor.visit(this, env);
-		}
+    class SubExp extends CompoundArithExp {
 
-		public String name() { return _name; }
+        public SubExp(Exp fst) {
+            super(fst);
+        }
 
-		public Exp value_exp() { return _value_exp; }
+        public SubExp(List<Exp> args) {
+            super(args);
+        }
 
-	}
-	
-	public interface Visitor <T> {
-		// This interface should contain a signature for each concrete AST node.
-		public T visit(AST.AddExp e, Env env);
-		public T visit(AST.UnitExp e, Env env);
-		public T visit(AST.NumExp e, Env env);
-		public T visit(AST.DivExp e, Env env);
-		public T visit(AST.MultExp e, Env env);
-		public T visit(AST.Program p, Env env);
-		public T visit(AST.SubExp e, Env env);
-		public T visit(AST.VarExp e, Env env);
-		public T visit(AST.LetExp e, Env env); // New for the varlang
-		public T visit(AST.DefineDecl d, Env env); // New for the definelang
-	}	
+        public SubExp(Exp fst, List<Exp> rest) {
+            super(fst, rest);
+        }
+
+        public SubExp(Exp left, Exp right) {
+            super(left, right);
+        }
+
+        public Object accept(Visitor visitor, Env env) {
+            return visitor.visit(this, env);
+        }
+    }
+
+    class DivExp extends CompoundArithExp {
+        public DivExp(Exp fst) {
+            super(fst);
+        }
+
+        public DivExp(List<Exp> args) {
+            super(args);
+        }
+
+        public DivExp(Exp fst, List<Exp> rest) {
+            super(fst, rest);
+        }
+
+        public DivExp(Exp left, Exp right) {
+            super(left, right);
+        }
+
+        public Object accept(Visitor visitor, Env env) {
+            return visitor.visit(this, env);
+        }
+    }
+
+    class MultExp extends CompoundArithExp {
+        public MultExp(Exp fst) {
+            super(fst);
+        }
+
+        public MultExp(List<Exp> args) {
+            super(args);
+        }
+
+        public MultExp(Exp fst, List<Exp> rest) {
+            super(fst, rest);
+        }
+
+        public MultExp(Exp left, Exp right) {
+            super(left, right);
+        }
+
+        public Object accept(Visitor visitor, Env env) {
+            return visitor.visit(this, env);
+        }
+    }
+
+    /**
+     * A let expression has the syntax
+     * <p>
+     * (let ((name expression)* ) expression)
+     *
+     * @author hridesh
+     */
+    class LetExp extends Exp {
+        final List<String> _names;
+        final List<Exp> _value_exps;
+        final Exp _body;
+
+        public LetExp(List<String> names, List<Exp> value_exps, Exp body) {
+            _names = names;
+            _value_exps = value_exps;
+            _body = body;
+        }
+
+        public Object accept(Visitor visitor, Env env) {
+            return visitor.visit(this, env);
+        }
+
+        public List<String> names() {
+            return _names;
+        }
+
+        public List<Exp> value_exps() {
+            return _value_exps;
+        }
+
+        public Exp body() {
+            return _body;
+        }
+
+    }
+
+    /**
+     * A define declaration has the syntax
+     * <p>
+     * (define name expression)
+     *
+     * @author hridesh
+     */
+    class DefineDecl extends Exp {
+        final String _name;
+        final Exp _value_exp;
+
+        public DefineDecl(String name, Exp value_exp) {
+            _name = name;
+            _value_exp = value_exp;
+        }
+
+        public Object accept(Visitor visitor, Env env) {
+            return visitor.visit(this, env);
+        }
+
+        public String name() {
+            return _name;
+        }
+
+        public Exp value_exp() {
+            return _value_exp;
+        }
+
+    }
 }
