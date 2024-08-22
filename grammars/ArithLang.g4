@@ -1,26 +1,26 @@
-grammar VarLang;
+grammar ArithLang;
 
- program returns [Program ast] :   
+ // Grammar of this Programming Language
+ //  - grammar rules start with lowercase
+ program returns [Program ast] : 
 		e=exp { $ast = new Program($e.ast); }
 		;
- 
+
  exp returns [Exp ast]: 
-		v=varexp { $ast = $v.ast; }
-		| n=numexp { $ast = $n.ast; }
+		n=numexp { $ast = $n.ast; }
         | a=addexp { $ast = $a.ast; }
         | s=subexp { $ast = $s.ast; }
         | m=multexp { $ast = $m.ast; }
         | d=divexp { $ast = $d.ast; }
-        | l=letexp { $ast = $l.ast; }
         ;
-
+  
  numexp returns [NumExp ast]:
  		n0=Number { $ast = new NumExp(Integer.parseInt($n0.text)); } 
   		| '-' n0=Number { $ast = new NumExp(-Integer.parseInt($n0.text)); }
   		| n0=Number Dot n1=Number { $ast = new NumExp(Double.parseDouble($n0.text+"."+$n1.text)); }
   		| '-' n0=Number Dot n1=Number { $ast = new NumExp(Double.parseDouble("-" + $n0.text+"."+$n1.text)); }
   		;		
-
+  
  addexp returns [AddExp ast]
         locals [ArrayList<Exp> list]
  		@init { $list = new ArrayList<Exp>(); } :
@@ -29,7 +29,7 @@ grammar VarLang;
  		    ( e=exp { $list.add($e.ast); } )+
  		')' { $ast = new AddExp($list); }
  		;
-
+ 
  subexp returns [SubExp ast]  
         locals [ArrayList<Exp> list]
  		@init { $list = new ArrayList<Exp>(); } :
@@ -57,26 +57,36 @@ grammar VarLang;
  		')' { $ast = new DivExp($list); }
  		;
 
- // New elements in the Grammar of this Programming Language
- //  - grammar rules start with lowercase
-
- varexp returns [VarExp ast]: 
- 		id=Identifier { $ast = new VarExp($id.text); }
- 		;
-
- letexp  returns [LetExp ast] 
-        locals [ArrayList<String> names, ArrayList<Exp> value_exps]
- 		@init { $names = new ArrayList<String>(); $value_exps = new ArrayList<Exp>(); } :
- 		'(' Let 
- 			'(' ( '(' id=Identifier e=exp ')' { $names.add($id.text); $value_exps.add($e.ast); } )+  ')'
- 			body=exp 
- 			')' { $ast = new LetExp($names, $value_exps, $body.ast); }
- 		;
 
  // Lexical Specification of this Programming Language
  //  - lexical specification rules start with uppercase
  
+ Define : 'define' ;
  Let : 'let' ;
+ Letrec : 'letrec' ;
+ Lambda : 'lambda' ;
+ If : 'if' ; 
+ Car : 'car' ; 
+ Cdr : 'cdr' ; 
+ Cons : 'cons' ; 
+ List : 'list' ; 
+ Null : 'null?' ; 
+ Less : '<' ;
+ Equal : '=' ;
+ Greater : '>' ;
+ TrueLiteral : '#t' ;
+ FalseLiteral : '#f' ;
+ Ref : 'ref' ;
+ Deref : 'deref' ;
+ Assign : 'set!' ;
+ Free : 'free' ;
+ Fork : 'fork' ;
+ Lock : 'lock' ;
+ UnLock : 'unlock' ;
+ Process : 'process' ;
+ Send : 'send' ;
+ Stop : 'stop' ;
+ Self : 'self' ;
  Dot : '.' ;
 
  Number : DIGIT+ ;
@@ -97,9 +107,11 @@ grammar VarLang;
 
  fragment DIGIT: ('0'..'9');
 
+ fragment ESCQUOTE : '\\"';
+ StrLiteral :   '"' ( ESCQUOTE | ~('\n'|'\r') )*? '"';
+
  AT : '@';
  ELLIPSIS : '...';
  WS  :  [ \t\r\n\u000C]+ -> skip;
  Comment :   '/*' .*? '*/' -> skip;
  Line_Comment :   '//' ~[\r\n]* -> skip;
- 
