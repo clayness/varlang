@@ -71,13 +71,5 @@ public class Printer {
             result.append(e.body().accept(this, env)).append(" ");
             return result + ")";
         }
-
-        public String visit(AST.DefineDecl d, Env env) {
-            String result = "(define ";
-            result += d.name() + " ";
-            result += d.value_exp().accept(this, env);
-            return result + ")";
-        }
-
     }
 }

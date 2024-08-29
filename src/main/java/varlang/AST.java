@@ -31,7 +31,6 @@ public interface AST {
 
         T visit(AST.LetExp e, Env env); // New for the varlang
 
-        T visit(AST.DefineDecl d, Env env); // New for the definelang
     }
 
     abstract class ASTNode implements AST {
@@ -39,20 +38,14 @@ public interface AST {
     }
 
     class Program extends ASTNode {
-        final List<DefineDecl> _decls;
         final Exp _e;
 
-        public Program(List<DefineDecl> decls, Exp e) {
-            _decls = decls;
+        public Program(Exp e) {
             _e = e;
         }
 
         public Exp e() {
             return _e;
-        }
-
-        public List<DefineDecl> decls() {
-            return _decls;
         }
 
         public Object accept(Visitor visitor, Env env) {
@@ -275,36 +268,6 @@ public interface AST {
 
         public Exp body() {
             return _body;
-        }
-
-    }
-
-    /**
-     * A define declaration has the syntax
-     * <p>
-     * (define name expression)
-     *
-     * @author hridesh
-     */
-    class DefineDecl extends Exp {
-        final String _name;
-        final Exp _value_exp;
-
-        public DefineDecl(String name, Exp value_exp) {
-            _name = name;
-            _value_exp = value_exp;
-        }
-
-        public Object accept(Visitor visitor, Env env) {
-            return visitor.visit(this, env);
-        }
-
-        public String name() {
-            return _name;
-        }
-
-        public Exp value_exp() {
-            return _value_exp;
         }
 
     }

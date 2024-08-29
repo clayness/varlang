@@ -1,24 +1,12 @@
 grammar VarLang;
 
-import VarLangBasic; //Import all rules from VarLang grammar.
+import ArithLang; //Import all rules from ArithLang grammar.
  
  // New elements in the Grammar of this Programming Language
  //  - grammar rules start with lowercase
 
-// We are redefining programs to be zero or more define declarations 
-// followed by an optional expression.
- program returns [Program ast]        
- 		locals [ArrayList<DefineDecl> defs, Exp expr]
- 		@init { $defs = new ArrayList<DefineDecl>(); $expr = new UnitExp(); } :
-		// (def=definedecl { $defs.add($def.ast); } )*
-		(def=definedecl { $defs.add($def.ast); } )*
-        (e=exp { $expr = $e.ast; } )? 
-		{ $ast = new Program($defs, $expr); }
-		;
-
-
- exp returns [Exp ast]: 
-		v=varexp { $ast = $v.ast; }
+ exp returns [Exp ast]:
+		  v=varexp { $ast = $v.ast; }
 		| n=numexp { $ast = $n.ast; }
         | a=addexp { $ast = $a.ast; }
         | s=subexp { $ast = $s.ast; }
@@ -27,25 +15,15 @@ import VarLangBasic; //Import all rules from VarLang grammar.
         | l=letexp { $ast = $l.ast; }
         ;
 
-// This is the new define macro grammar.
+ varexp returns [VarExp ast]:
+ 		id=Identifier { $ast = new VarExp($id.text); }
+ 		;
 
-
-// (define (macro_name argument1, argument2, ...) expression)
-
-
-// Example 1
-
-// (define (square x) (* x x))
-// (square 2)
-
-// Example 2
-
-// (define (pressure n R T V) (/ (* n R T) V))
-// (pressure 2 8.3146 273 0.0224)
-
- definedecl returns [DefineDecl ast] :
- 		'(' Define 
- 			id=Identifier
- 			e=exp
- 			')' { $ast = new DefineDecl($id.text, $e.ast); }
-    ;
+ letexp  returns [LetExp ast]
+        locals [ArrayList<String> names, ArrayList<Exp> value_exps]
+ 		@init { $names = new ArrayList<String>(); $value_exps = new ArrayList<Exp>(); } :
+ 		'(' Let
+ 			'(' ( '(' id=Identifier e=exp ')' { $names.add($id.text); $value_exps.add($e.ast); } )+  ')'
+ 			body=exp
+ 			')' { $ast = new LetExp($names, $value_exps, $body.ast); }
+ 		;
