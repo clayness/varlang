@@ -78,6 +78,8 @@ fabric.properties
 
 .gradle
 **/build/
+**/gen/
+*.tokens
 !src/**/build/
 
 # Ignore Gradle GUI config
@@ -97,3 +99,5 @@ gradle-app.setting
 .project
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
+
+
