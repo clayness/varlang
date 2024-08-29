@@ -7,7 +7,7 @@ grammar ArithLang;
 		;
 
  exp returns [Exp ast]: 
-		n=numexp { $ast = $n.ast; }
+		  n=numexp { $ast = $n.ast; }
         | a=addexp { $ast = $a.ast; }
         | s=subexp { $ast = $s.ast; }
         | m=multexp { $ast = $m.ast; }
@@ -61,32 +61,6 @@ grammar ArithLang;
  // Lexical Specification of this Programming Language
  //  - lexical specification rules start with uppercase
  
- Define : 'define' ;
- Let : 'let' ;
- Letrec : 'letrec' ;
- Lambda : 'lambda' ;
- If : 'if' ; 
- Car : 'car' ; 
- Cdr : 'cdr' ; 
- Cons : 'cons' ; 
- List : 'list' ; 
- Null : 'null?' ; 
- Less : '<' ;
- Equal : '=' ;
- Greater : '>' ;
- TrueLiteral : '#t' ;
- FalseLiteral : '#f' ;
- Ref : 'ref' ;
- Deref : 'deref' ;
- Assign : 'set!' ;
- Free : 'free' ;
- Fork : 'fork' ;
- Lock : 'lock' ;
- UnLock : 'unlock' ;
- Process : 'process' ;
- Send : 'send' ;
- Stop : 'stop' ;
- Self : 'self' ;
  Dot : '.' ;
 
  Number : DIGIT+ ;

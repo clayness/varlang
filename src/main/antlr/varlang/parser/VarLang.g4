@@ -27,3 +27,6 @@ import ArithLang; //Import all rules from ArithLang grammar.
  			body=exp
  			')' { $ast = new LetExp($names, $value_exps, $body.ast); }
  		;
+
+ Let : 'let';
+
