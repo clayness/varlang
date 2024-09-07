@@ -12,7 +12,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-public class Reader {
+public class Reader implements AutoCloseable {
+
+    private final BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
     @SuppressWarnings("SameReturnValue")
     protected String getProgramDirectory() {
@@ -21,7 +23,11 @@ public class Reader {
 
     public Program read() throws IOException {
         String programText = readNextProgram();
-        return parse(programText);
+        if (programText == null) {
+            return null;
+        } else {
+            return parse(programText);
+        }
     }
 
     public Program parse(String programText) {
@@ -39,10 +45,13 @@ public class Reader {
     }
 
     protected String readNextProgram() throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         System.out.print("$ ");
         String programText = br.readLine();
-        return runFile(programText);
+        if (programText == null) {
+            return null;
+        } else {
+            return runFile(programText);
+        }
     }
 
     protected String runFile(String programText) throws IOException {
@@ -64,5 +73,10 @@ public class Reader {
             }
             return sb.toString();
         }
+    }
+
+    @Override
+    public void close() throws Exception {
+        br.close();
     }
 }

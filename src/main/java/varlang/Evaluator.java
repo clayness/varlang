@@ -1,7 +1,7 @@
 package varlang;
 
 import varlang.Env.ExtendEnv;
-import varlang.Env.GlobalEnv;
+import varlang.Env.EmptyEnv;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,7 @@ import static varlang.Value.UnitVal;
 
 public class Evaluator implements Visitor<Value> {
     Value valueOf(Program p) {
-        return (Value) p.accept(this, new GlobalEnv());
+        return (Value) p.accept(this, new EmptyEnv());
     }
 
     @Override

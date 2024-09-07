@@ -7,17 +7,17 @@ grammar ArithLang;
 		;
 
  exp returns [Exp ast]: 
-		  n=numexp { $ast = $n.ast; }
-        | a=addexp { $ast = $a.ast; }
-        | s=subexp { $ast = $s.ast; }
+		  n=numexp  { $ast = $n.ast; }
+        | a=addexp  { $ast = $a.ast; }
+        | s=subexp  { $ast = $s.ast; }
         | m=multexp { $ast = $m.ast; }
-        | d=divexp { $ast = $d.ast; }
+        | d=divexp  { $ast = $d.ast; }
         ;
   
  numexp returns [NumExp ast]:
- 		n0=Number { $ast = new NumExp(Integer.parseInt($n0.text)); } 
+ 		      n0=Number { $ast = new NumExp(Integer.parseInt($n0.text)); }
   		| '-' n0=Number { $ast = new NumExp(-Integer.parseInt($n0.text)); }
-  		| n0=Number Dot n1=Number { $ast = new NumExp(Double.parseDouble($n0.text+"."+$n1.text)); }
+  		|     n0=Number Dot n1=Number { $ast = new NumExp(Double.parseDouble(      $n0.text+"."+$n1.text)); }
   		| '-' n0=Number Dot n1=Number { $ast = new NumExp(Double.parseDouble("-" + $n0.text+"."+$n1.text)); }
   		;		
   
@@ -25,34 +25,31 @@ grammar ArithLang;
         locals [ArrayList<Exp> list]
  		@init { $list = new ArrayList<Exp>(); } :
  		'(' '+'
- 		    e=exp { $list.add($e.ast); } 
+ 		      e=exp { $list.add($e.ast); }
  		    ( e=exp { $list.add($e.ast); } )+
  		')' { $ast = new AddExp($list); }
  		;
  
  subexp returns [SubExp ast]  
-        locals [ArrayList<Exp> list]
- 		@init { $list = new ArrayList<Exp>(); } :
+        locals [ ArrayList<Exp> list = new ArrayList<Exp>(); ] :
  		'(' '-'
- 		    e=exp { $list.add($e.ast); } 
+ 		      e=exp { $list.add($e.ast); }
  		    ( e=exp { $list.add($e.ast); } )+ 
  		')' { $ast = new SubExp($list); }
  		;
 
  multexp returns [MultExp ast] 
-        locals [ArrayList<Exp> list]
- 		@init { $list = new ArrayList<Exp>(); } :
+        locals [ ArrayList<Exp> list = new ArrayList<Exp>(); ] :
  		'(' '*'
- 		    e=exp { $list.add($e.ast); } 
+ 		      e=exp { $list.add($e.ast); }
  		    ( e=exp { $list.add($e.ast); } )+ 
  		')' { $ast = new MultExp($list); }
  		;
  
  divexp returns [DivExp ast] 
-        locals [ArrayList<Exp> list]
- 		@init { $list = new ArrayList<Exp>(); } :
+        locals [ ArrayList<Exp> list = new ArrayList<Exp>(); ] :
  		'(' '/'
- 		    e=exp { $list.add($e.ast); } 
+ 		      e=exp { $list.add($e.ast); }
  		    ( e=exp { $list.add($e.ast); } )+ 
  		')' { $ast = new DivExp($list); }
  		;
@@ -60,7 +57,6 @@ grammar ArithLang;
 
  // Lexical Specification of this Programming Language
  //  - lexical specification rules start with uppercase
- 
  Dot : '.' ;
 
  Number : DIGIT+ ;

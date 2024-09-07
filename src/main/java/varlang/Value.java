@@ -1,7 +1,6 @@
 package varlang;
 
 public interface Value {
-    String toString();
 
     class NumVal implements Value {
         private final double _val;
@@ -14,6 +13,7 @@ public interface Value {
             return _val;
         }
 
+        @Override
         public String toString() {
             int tmp = (int) _val;
             if (tmp == _val) return "" + tmp;
@@ -24,6 +24,7 @@ public interface Value {
     class UnitVal implements Value {
         public static final UnitVal v = new UnitVal();
 
+        @Override
         public String toString() {
             return "";
         }
@@ -36,6 +37,7 @@ public interface Value {
             this.message = message;
         }
 
+        @Override
         public String toString() {
             return message;
         }

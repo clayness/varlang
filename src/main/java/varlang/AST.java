@@ -7,7 +7,7 @@ import java.util.List;
  * This class hierarchy represents expressions in the abstract syntax tree
  * manipulated by this interpreter.
  *
- * @author hridesh
+ * @author hridesh, clay
  */
 @SuppressWarnings("rawtypes")
 public interface AST {
@@ -29,7 +29,7 @@ public interface AST {
 
         T visit(AST.VarExp e, Env env);
 
-        T visit(AST.LetExp e, Env env); // New for the varlang
+        T visit(AST.LetExp e, Env env); // New for varlang
 
     }
 
@@ -236,13 +236,6 @@ public interface AST {
         }
     }
 
-    /**
-     * A let expression has the syntax
-     * <p>
-     * (let ((name expression)* ) expression)
-     *
-     * @author hridesh
-     */
     class LetExp extends Exp {
         final List<String> _names;
         final List<Exp> _value_exps;
